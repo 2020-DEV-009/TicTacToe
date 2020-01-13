@@ -39,13 +39,9 @@ class TicTacToeViewModelTest {
         viewModel.onCellClicked(index)
 
         //Then
-        val captor = ArgumentCaptor.forClass(GameState::class.java)
-        captor.run {
-            verify(gameStateObserver, times(2)).onChanged(capture())
-            assertTrue(value is GameState.Playing)
-            assertTrue(
-                (value as GameState.Playing).board[index] == expectedXValue
-            )
+        verifyWithCaptor(2) { state ->
+            assertTrue(state is GameState.Playing)
+            assertTrue((state as GameState.Playing).board[index] == expectedXValue)
         }
     }
 
@@ -59,11 +55,9 @@ class TicTacToeViewModelTest {
         viewModel.onCellClicked(indexO)
 
         //Then
-        val captor = ArgumentCaptor.forClass(GameState::class.java)
-        captor.run {
-            verify(gameStateObserver, times(3)).onChanged(capture())
-            assertTrue(value is GameState.Playing)
-            assertTrue((value as GameState.Playing).board[indexO] == expectedOValue)
+        verifyWithCaptor(3) { state ->
+            assertTrue(state is GameState.Playing)
+            assertTrue((state as GameState.Playing).board[indexO] == expectedOValue)
         }
     }
 
@@ -73,11 +67,9 @@ class TicTacToeViewModelTest {
         runWinnerXGame()
 
         //Then
-        val captor = ArgumentCaptor.forClass(GameState::class.java)
-        captor.run {
-            verify(gameStateObserver, times(7)).onChanged(capture())
-            assertTrue(value is GameState.Finished)
-            val result = (value as GameState.Finished).result
+        verifyWithCaptor(7) { state ->
+            assertTrue(state is GameState.Finished)
+            val result = (state as GameState.Finished).result
             assertTrue(result is Result.Win)
             assertTrue((result as Result.Win).winner.character == expectedXValue)
         }
@@ -89,11 +81,9 @@ class TicTacToeViewModelTest {
         runWinnerOGame()
 
         //Then
-        val captor = ArgumentCaptor.forClass(GameState::class.java)
-        captor.run {
-            verify(gameStateObserver, times(8)).onChanged(capture())
-            assertTrue(value is GameState.Finished)
-            val result = (value as GameState.Finished).result
+        verifyWithCaptor(8) { state ->
+            assertTrue(state is GameState.Finished)
+            val result = (state as GameState.Finished).result
             assertTrue(result is Result.Win)
             assertTrue((result as Result.Win).winner.character == expectedOValue)
         }
@@ -105,11 +95,9 @@ class TicTacToeViewModelTest {
         runTieGame()
 
         //Then
-        val captor = ArgumentCaptor.forClass(GameState::class.java)
-        captor.run {
-            verify(gameStateObserver, times(11)).onChanged(capture())
-            assertTrue(value is GameState.Finished)
-            assertTrue((value as GameState.Finished).result is Result.Tie)
+        verifyWithCaptor(11) { state ->
+            assertTrue(state is GameState.Finished)
+            assertTrue((state as GameState.Finished).result is Result.Tie)
         }
     }
 
@@ -118,18 +106,25 @@ class TicTacToeViewModelTest {
         //When
         clickCellAndChangeTurn(0)
         clickCellAndChangeTurn(1)
+        viewModel.onResetClicked()
 
         //Then
-        val captor = ArgumentCaptor.forClass(GameState::class.java)
-        captor.run {
-            verify(gameStateObserver, times(4)).onChanged(capture())
-            assertTrue(value is GameState.Initial)
+        verifyWithCaptor(4) { state ->
+            assertTrue(state is GameState.Initial)
         }
     }
 
     private fun clickCellAndChangeTurn(index: Int) {
         viewModel.onCellClicked(index)
         viewModel.checkForWinner()
+    }
+
+    private fun verifyWithCaptor(expectedTimes: Int, block: (value: GameState) -> Unit) {
+        val captor = ArgumentCaptor.forClass(GameState::class.java)
+        captor.run {
+            verify(gameStateObserver, times(expectedTimes)).onChanged(capture())
+            block(value)
+        }
     }
 
     private fun runWinnerXGame() {
