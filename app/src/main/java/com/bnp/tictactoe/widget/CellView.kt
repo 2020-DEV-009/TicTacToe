@@ -22,6 +22,7 @@ internal class CellView @JvmOverloads constructor(
     init {
         //Each cell has fixed size and a border background
         val size = resources.getDimensionPixelSize(R.dimen.cellSize)
+        contentDescription = "Cell$index"
         layoutParams = LinearLayout.LayoutParams(size, size)
         background = ContextCompat.getDrawable(context, R.drawable.cell_background)
         setOnClickListener(context as? MainActivity)
