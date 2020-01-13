@@ -13,6 +13,9 @@ import com.bnp.tictactoe.vm.Result
 import com.bnp.tictactoe.vm.TicTacToeViewModel
 import com.bnp.tictactoe.widget.CellView
 import kotlinx.android.synthetic.main.activity_main.*
+import android.view.Menu
+import android.view.MenuItem
+
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -87,5 +90,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         if (v is CellView) {
             viewModel.onCellClicked(v.index)
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.reset_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when(item?.itemId) {
+            R.id.action_reset -> viewModel.onResetClicked()
+        }
+        return super.onOptionsItemSelected(item)
     }
 }

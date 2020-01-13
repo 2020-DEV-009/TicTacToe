@@ -101,12 +101,29 @@ class TicTacToeViewModelTest {
 
     @Test
     fun checkTie() {
+        //When
         runTieGame()
+
+        //Then
         val captor = ArgumentCaptor.forClass(GameState::class.java)
         captor.run {
             verify(gameStateObserver, times(11)).onChanged(capture())
             assertTrue(value is GameState.Finished)
             assertTrue((value as GameState.Finished).result is Result.Tie)
+        }
+    }
+
+    @Test
+    fun resetToInitialState() {
+        //When
+        clickCellAndChangeTurn(0)
+        clickCellAndChangeTurn(1)
+
+        //Then
+        val captor = ArgumentCaptor.forClass(GameState::class.java)
+        captor.run {
+            verify(gameStateObserver, times(4)).onChanged(capture())
+            assertTrue(value is GameState.Initial)
         }
     }
 

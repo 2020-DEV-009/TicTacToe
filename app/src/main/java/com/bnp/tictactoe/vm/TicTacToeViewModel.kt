@@ -24,7 +24,7 @@ internal class TicTacToeViewModel : ViewModel() {
         get() = _gameState
 
     private val board = Array(9) { emptyValue }
-    internal var currentPlayer = player1
+    private var currentPlayer = player1
     private var busyCells = 0
 
     fun onCellClicked(index: Int) {
@@ -50,5 +50,13 @@ internal class TicTacToeViewModel : ViewModel() {
         } else {
             player1
         }
+    }
+
+    fun onResetClicked() {
+        //Return to initial values
+        board.forEachIndexed { index, _ -> board[index] = "-" }
+        currentPlayer = player1
+        busyCells = 0
+        _gameState.postValue(GameState.Initial)
     }
 }
