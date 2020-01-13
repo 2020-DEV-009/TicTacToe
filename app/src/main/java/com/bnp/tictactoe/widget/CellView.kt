@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.widget.ImageView
 import android.widget.LinearLayout
+import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import com.bnp.tictactoe.MainActivity
 import com.bnp.tictactoe.R
@@ -22,10 +23,24 @@ internal class CellView @JvmOverloads constructor(
     init {
         //Each cell has fixed size and a border background
         val size = resources.getDimensionPixelSize(R.dimen.cellSize)
+        val padding = resources.getDimensionPixelSize(R.dimen.cellPadding)
         contentDescription = "Cell$index"
         layoutParams = LinearLayout.LayoutParams(size, size)
+        setPadding(padding, padding, padding, padding)
         background = ContextCompat.getDrawable(context, R.drawable.cell_background)
+        isClickable = true
         setOnClickListener(context as? MainActivity)
+    }
+
+    //When an image is set, the View won't be clickable anymore
+    fun setImage(@DrawableRes imageRes: Int) {
+        isClickable = false
+        setImageResource(imageRes)
+    }
+
+    fun clean() {
+        isClickable = true
+        setImageDrawable(null)
     }
 
 }
