@@ -55,7 +55,7 @@ class TicTacToeViewModelTest {
         val indexO = 1
 
         //When
-        viewModel.onCellClicked(indexX)
+        clickCellAndChangeTurn(indexX)
         viewModel.onCellClicked(indexO)
 
         //Then
@@ -110,12 +110,17 @@ class TicTacToeViewModelTest {
         }
     }
 
+    private fun clickCellAndChangeTurn(index: Int) {
+        viewModel.onCellClicked(index)
+        viewModel.checkForWinner()
+    }
+
     private fun runWinnerXGame() {
         //Sequence: [ X, X, X, O, O, -, -, -, -]
         for (i in 0..2) {
-            viewModel.onCellClicked(i)
+            clickCellAndChangeTurn(i)
             if (i != 2) {
-                viewModel.onCellClicked(i + 3)
+                clickCellAndChangeTurn(i + 3)
             }
         }
     }
@@ -123,8 +128,8 @@ class TicTacToeViewModelTest {
     private fun runWinnerOGame() {
         //Sequence: [O, O, O, -, X, X, X, -, -]
         for (i in 0..2) {
-            viewModel.onCellClicked(i + 4)
-            viewModel.onCellClicked(i)
+            clickCellAndChangeTurn(i + 4)
+            clickCellAndChangeTurn(i)
         }
     }
 
@@ -132,9 +137,9 @@ class TicTacToeViewModelTest {
         //Sequence: [X, O, X, O, X, X, O, X, O]
         for (i in 0..8) {
             if (i != 4) {
-                viewModel.onCellClicked(i)
+                clickCellAndChangeTurn(i)
             }
         }
-        viewModel.onCellClicked(4)
+        clickCellAndChangeTurn(4)
     }
 }

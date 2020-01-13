@@ -30,7 +30,10 @@ internal class TicTacToeViewModel : ViewModel() {
     fun onCellClicked(index: Int) {
         board[index] = currentPlayer.character
         busyCells++
-        _gameState.postValue(GameState.Playing(board))
+        _gameState.postValue(GameState.Playing(index, currentPlayer, board))
+    }
+
+    fun checkForWinner() {
         //There is no possible winner until at least 5 cells will be checked (three checks for the first player)
         if (busyCells > 4) {
             board.checkForWinner(currentPlayer)?.apply {
