@@ -17,17 +17,14 @@ class MainActivityTest {
 
     @Test
     fun cellNotClickableIfAlreadySelected() {
-        onView(withContentDescription("Cell0"))
-            .perform(click())
+        clickOnCellWithContentDescription("Cell0")
             .check(matches(not(isClickable())))
     }
 
     @Test
     fun checkedCellClickableAfterReset() {
-
         //Click on Cell 0
-        onView(withContentDescription("Cell0"))
-            .perform(click())
+        clickOnCellWithContentDescription("Cell0")
 
         //Click on reset menu option
         onView(withId(R.id.action_reset))
@@ -37,5 +34,33 @@ class MainActivityTest {
         onView(withContentDescription("Cell0"))
             .check(matches(isClickable()))
     }
+
+    @Test
+    fun showWinnerResultDialogAfterGameOver() {
+        val expectedDialogContent = "RESULT: PLAYER 1 WINS"
+        val xWinnerArray = intArrayOf(0,3,1,5,2)
+        xWinnerArray.runGame()
+
+        onView(withText(expectedDialogContent))
+            .check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun showTieResultDialogAfterGameOver() {
+        val expectedDialogContent = "RESULT: TIE"
+        val tieArray = intArrayOf(0,1,2,3,4,6,7,8,5)
+        tieArray.runGame()
+
+        onView(withText(expectedDialogContent))
+            .check(matches(isDisplayed()))
+    }
+
+    private fun IntArray.runGame() {
+        forEach { id -> clickOnCellWithContentDescription("Cell$id") }
+    }
+
+    private fun clickOnCellWithContentDescription(contentDescription: String) =
+        onView(withContentDescription(contentDescription))
+            .perform(click())
 
 }
