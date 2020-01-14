@@ -17,7 +17,7 @@ The following use cases has been implemented and tested:
 
 ## Architecture 
 
-This code uses MVVM architecture. The `Activity` needs to observe below `LiveData` in order to be aware of the changes:
+This code uses MVVM architecture. The `Activity` needs to observe below `LiveData in order to be aware of the changes:
 
 - **GameState**: It can be one of the following values:
     - Initial: It shows an empty board to init the game.
@@ -35,4 +35,4 @@ The solution includes a custom view (`CellView`) that extends from ImageView and
 each cell into the parent grid (Index 0 to 8: From left to right - From top to bottom)
 
 ## Demo
-![phone1](demo/tictactoe_bnp.gif)
+![phone1](demo/tictactoe_demo.gif)
