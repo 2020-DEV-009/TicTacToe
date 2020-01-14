@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="cellSize">80dp</dimen>
+    <dimen name="cellPadding">12dp</dimen>
+    <dimen name="boardMargin">16dp</dimen>
+</resources>
