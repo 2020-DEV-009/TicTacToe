@@ -2,6 +2,7 @@ package com.bnp.tictactoe
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
+import com.bnp.tictactoe.extensions.Event
 import com.bnp.tictactoe.vm.GameState
 import com.bnp.tictactoe.vm.Result
 import com.bnp.tictactoe.vm.TicTacToeViewModel
@@ -24,11 +25,13 @@ class TicTacToeViewModelTest {
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private val gameStateObserver: Observer<GameState> = mock()
+    private val resultObserver: Observer<Event<Result>> = mock()
     private val viewModel = TicTacToeViewModel()
 
     @Before
     fun setUpTaskDetailViewModel() {
         viewModel.gameState.observeForever(gameStateObserver)
+        viewModel.result.observeForever(resultObserver)
     }
 
     @Test
@@ -39,7 +42,7 @@ class TicTacToeViewModelTest {
         viewModel.onCellClicked(index)
 
         //Then
-        verifyWithCaptor(2) { state ->
+        verifyWithCaptor(gameStateObserver, 2) { state ->
             assertTrue(state is GameState.Playing)
             assertTrue((state as GameState.Playing).board[index] == expectedXValue)
         }
@@ -55,7 +58,7 @@ class TicTacToeViewModelTest {
         viewModel.onCellClicked(indexO)
 
         //Then
-        verifyWithCaptor(3) { state ->
+        verifyWithCaptor(gameStateObserver, 3) { state ->
             assertTrue(state is GameState.Playing)
             assertTrue((state as GameState.Playing).board[indexO] == expectedOValue)
         }
@@ -67,9 +70,11 @@ class TicTacToeViewModelTest {
         runWinnerXGame()
 
         //Then
-        verifyWithCaptor(7) { state ->
+        verifyWithCaptor(gameStateObserver, 7) { state ->
             assertTrue(state is GameState.Finished)
-            val result = (state as GameState.Finished).result
+        }
+        verifyWithCaptor(resultObserver, 1) { value ->
+            val result = value.getContentIfNotHandled()
             assertTrue(result is Result.Win)
             assertTrue((result as Result.Win).winner.character == expectedXValue)
         }
@@ -81,9 +86,11 @@ class TicTacToeViewModelTest {
         runWinnerOGame()
 
         //Then
-        verifyWithCaptor(8) { state ->
+        verifyWithCaptor(gameStateObserver, 8) { state ->
             assertTrue(state is GameState.Finished)
-            val result = (state as GameState.Finished).result
+        }
+        verifyWithCaptor(resultObserver, 1) { value ->
+            val result = value.getContentIfNotHandled()
             assertTrue(result is Result.Win)
             assertTrue((result as Result.Win).winner.character == expectedOValue)
         }
@@ -91,13 +98,16 @@ class TicTacToeViewModelTest {
 
     @Test
     fun checkTie() {
+
         //When
         runTieGame()
 
         //Then
-        verifyWithCaptor(11) { state ->
+        verifyWithCaptor(gameStateObserver, 11) { state ->
             assertTrue(state is GameState.Finished)
-            assertTrue((state as GameState.Finished).result is Result.Tie)
+        }
+        verifyWithCaptor(resultObserver, 1) { result ->
+            assertTrue(result.getContentIfNotHandled() is Result.Tie)
         }
     }
 
@@ -109,7 +119,7 @@ class TicTacToeViewModelTest {
         viewModel.onResetClicked()
 
         //Then
-        verifyWithCaptor(4) { state ->
+        verifyWithCaptor(gameStateObserver,4) { state ->
             assertTrue(state is GameState.Initial)
         }
     }
@@ -119,10 +129,14 @@ class TicTacToeViewModelTest {
         viewModel.checkForWinner()
     }
 
-    private fun verifyWithCaptor(expectedTimes: Int, block: (value: GameState) -> Unit) {
-        val captor = ArgumentCaptor.forClass(GameState::class.java)
+    private inline fun <reified T : Any> verifyWithCaptor(
+        observer: Observer<T>,
+        expectedTimes: Int,
+        block: (value: T) -> Unit
+    ) {
+        val captor = ArgumentCaptor.forClass(T::class.java)
         captor.run {
-            verify(gameStateObserver, times(expectedTimes)).onChanged(capture())
+            verify(observer, times(expectedTimes)).onChanged(capture())
             block(value)
         }
     }

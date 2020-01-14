@@ -8,6 +8,6 @@ internal sealed class GameState {
 
     class Playing (val clickedIndex: Int, val currentPlayer: Player, val board: Array<String>): GameState()
 
-    class Finished (val result: Result): GameState()
+    class Finished (val board: Array<String>): GameState()
 
 }

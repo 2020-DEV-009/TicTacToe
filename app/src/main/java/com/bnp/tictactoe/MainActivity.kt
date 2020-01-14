@@ -15,6 +15,7 @@ import com.bnp.tictactoe.widget.CellView
 import kotlinx.android.synthetic.main.activity_main.*
 import android.view.Menu
 import android.view.MenuItem
+import com.bnp.tictactoe.extensions.EventObserver
 
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
@@ -26,7 +27,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(R.layout.activity_main)
         buildBoard()
         viewModel.gameState.observe(this, Observer(::updateUI))
+        viewModel.result.observe(this, EventObserver(::showDialog))
     }
+
 
     // Calculate the total number of cells and create/add the views to the board
     private fun buildBoard() {
@@ -38,6 +41,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
         //In case the activity is recreated and the state would be `Playing` the cells need to be re-painted
         (viewModel.gameState.value as? GameState.Playing)?.board?.apply {
+            drawBoard(this)
+        }
+        (viewModel.gameState.value as? GameState.Finished)?.board?.apply {
             drawBoard(this)
         }
     }
@@ -55,7 +61,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         when (gameState) {
             is GameState.Initial -> cleanCells()
             is GameState.Playing -> updateCell(gameState.clickedIndex, gameState.currentPlayer.imageRes)
-            is GameState.Finished -> finishGame(gameState.result)
+            is GameState.Finished -> finishGame()
         }
     }
 
@@ -68,17 +74,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         viewModel.checkForWinner()
     }
 
-    private fun finishGame(result: Result) {
+    private fun finishGame() {
         boardLayout.children.forEach { cell -> (cell as? CellView)?.isClickable = false }
-        showDialog(
-            when (result) {
-                is Result.Tie -> getString(R.string.result_dialog_content_tie)
-                is Result.Win -> getString(R.string.result_dialog_content_winner, result.winner.id)
-            }
-        )
     }
 
-    private fun showDialog(content: String) {
+    private fun showDialog(result: Result) {
+        val content = when (result) {
+            is Result.Tie -> getString(R.string.result_dialog_content_tie)
+            is Result.Win -> getString(R.string.result_dialog_content_winner, result.winner.id)
+        }
         AlertDialog.Builder(this).apply {
             setMessage(content)
             setTitle(R.string.result_dialog_title)

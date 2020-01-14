@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.bnp.tictactoe.R
 import com.bnp.tictactoe.data.Player
+import com.bnp.tictactoe.extensions.Event
 import com.bnp.tictactoe.extensions.checkForWinner
 
 internal class TicTacToeViewModel : ViewModel() {
@@ -23,6 +24,11 @@ internal class TicTacToeViewModel : ViewModel() {
     val gameState: LiveData<GameState>
         get() = _gameState
 
+    private val _result: MutableLiveData<Event<Result>> = MutableLiveData()
+
+    val result: LiveData<Event<Result>>
+        get() = _result
+
     private val board = Array(9) { emptyValue }
     private var currentPlayer = player1
     private var busyCells = 0
@@ -37,7 +43,8 @@ internal class TicTacToeViewModel : ViewModel() {
         //There is no possible winner until at least 5 cells will be checked (three checks for the first player)
         if (busyCells > 4) {
             board.checkForWinner(currentPlayer)?.apply {
-                _gameState.postValue(GameState.Finished(this))
+                _gameState.postValue(GameState.Finished(board))
+                _result.postValue(Event(this))
                 return
             }
         }
